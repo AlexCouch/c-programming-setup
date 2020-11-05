@@ -1,4 +1,10 @@
 import os
+import sys
+import shutil
+
+if 'CMAN_PATH' not in os.environ:
+    print('CMAN_PATH not set, please run "cman init" to generate it or report to author.')
+    exit(1)
 
 cwd = os.getcwd()
 
@@ -26,3 +32,5 @@ libs = os.path.join(cwd, 'libs')
 if not os.path.exists(libs):
     os.mkdir(libs)
     print('Libs dir created!')
+
+shutil.copy(os.path.join(os.environ["CMAN_PATH"], '.gitignore'), '.gitignore')
