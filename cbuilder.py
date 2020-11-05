@@ -8,6 +8,8 @@ global project_name
 
 def build():
     global project_name
+
+    print('Building {}...\n'.format(project_name))
     libs = []
     ##Get the directories in the current working directory
     dirs = os.listdir(cwd)
@@ -43,10 +45,19 @@ def build():
 
     # print(cmd_str)
     import subprocess
+    import time
+
+    start_time = time.time() * 1000
     try:
         out = subprocess.call(cmd_str)
     except subprocess.CalledProcessError as e:
         print(e.stdout.decode())
+    
+    end_time = time.time() * 1000
+    diff = int(end_time - start_time)
+    
+    print('')
+    print('Built in {} ms'.format(diff))
 
     os.chdir(cwd)
         
