@@ -1,3 +1,3 @@
 @echo off
 
-python3 C:\cbuilder\cbuilder.py
+python3 %~dp0\cbuilder.py

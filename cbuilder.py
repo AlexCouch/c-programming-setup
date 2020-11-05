@@ -4,8 +4,10 @@ import json
 cwd = os.getcwd()
 headers = []
 sources = []
+global project_name
 
 def build():
+    global project_name
     libs = []
     ##Get the directories in the current working directory
     dirs = os.listdir(cwd)
@@ -20,11 +22,11 @@ def build():
         sources[idx] = '../src/' + src
 
     if 'libs' in dirs:
-        libs = os.listidr(dirs[dirs.index('libs')])
+        libs = os.listdir(dirs[dirs.index('libs')])
 
-    print(headers)
-    print(sources)
-    print(libs)
+    # print(headers)
+    # print(sources)
+    # print(libs)
 
     if 'build' not in dirs:
         os.mkdir('build')
@@ -37,16 +39,20 @@ def build():
     for src in sources:
         cmd_str += src + ' '
 
-    print(cmd_str)
+    cmd_str += '/Fe' + cwd + '/build/' + project_name
+
+    # print(cmd_str)
     import subprocess
     try:
-        out = subprocess.check_output(cmd_str, shell=True)
-        print(out.decode())
+        out = subprocess.call(cmd_str)
     except subprocess.CalledProcessError as e:
         print(e.stdout.decode())
+
+    os.chdir(cwd)
         
 
 def get_other_includes():
+    global project_name
     build_json = os.path.join(cwd, 'build.json')
 
     if not os.path.exists(build_json):
@@ -59,6 +65,13 @@ def get_other_includes():
     except json.JSONDecodeError as e:
         print(e)
         return 1
+
+    if "name" not in json_data:
+        print('"name" is a required field.')
+        return 1
+    
+    project_name = json_data["name"]
+    # print('found "name" field in build.json: {}'.format(project_name))
 
     if 'other_includes' not in json_data:
         return
