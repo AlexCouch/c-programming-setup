@@ -11,6 +11,12 @@ This command will execute every time you open cmd using the shortcut and it will
 All the following commands can also be invoked under a superalias called 'cman'. The reason for this is to make it more clear that these commands are grouped together under the same umbrella.
 
 ## Build
+```python
+#Either of these commands will work just fine
+build
+cman build
+```
+
 Running build.bat will handle running the 'cl' command for you. If you don't have a 'build' directory in your project, it will make one for you and put all your build files in there. It will also keep stdout piped to stdout instead of python subprocess, so that way you can still have the typical output of a compiler. This will also attempt to load up a build.json file for additional info (complexity may grow over time). The general structure looks like this:
 
 ```
@@ -27,12 +33,30 @@ This will be used to add additional includes outside of the project. This is goo
 This will also tell you how long it took to build.
 
 ## Init
+```python
+#Either of these commands will work just fine
+init
+cman init
+```
+
 Running init.bat will create a new project setup in your current working directory for you that's structured to work with build.bat. It will create a build, includes, src, and libs dirs for you. The reason I made this was in case it grows in complexity which I expect it will.
 
 The `project` directory is a test directory you can use to play around with this tool.
 
 ## Clean
+```python
+#Either of these commands will work just fine
+clean
+cman clean
+```
+
 Clean will clean out the build directory. Not much else to say. Use it if you wish.
 
 ## Run
+```python
+#Either of these commands will work just fine
+run
+cman run
+```
+
 Run will first call build script followed by running the built executable. This will also tell you how long it took to run.
