@@ -21,7 +21,15 @@ Running build.bat will handle running the 'cl' command for you. If you don't hav
 ```
 This will be used to add additional includes outside of the project. This is good for if you have your own personal libraries you like to use, or if you like to keep a certain set of libraries at a certain location and you just add their paths to this file.
 
+This will also tell you how long it took to build.
+
 ## Init
 Running init.bat will create a new project setup in your current working directory for you that's structured to work with build.bat. It will create a build, includes, src, and libs dirs for you. The reason I made this was in case it grows in complexity which I expect it will.
 
 The `project` directory is a test directory you can use to play around with this tool.
+
+## Clean
+Clean will clean out the build directory. Not much else to say. Use it if you wish.
+
+## Run
+Run will first call build script followed by running the built executable. This will also tell you how long it took to run.
