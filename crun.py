@@ -8,6 +8,10 @@ cwd = os.getcwd()
 build = os.path.join(cwd, 'build')
 exe = os.path.join(build, '{}.exe'.format(project_name))
 
+if not os.path.exists(exe):
+    print('Couldnt run {}: executable not found. Did the build command fail?'.format(exe))
+    exit(1)
+
 print('')
 print('Running {}\n'.format(project_name))
 

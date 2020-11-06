@@ -19,4 +19,9 @@ if "%1" == "run" (
     goto :exit
 )
 
+if "%1" == "new" (
+    call "%CMAN_PATH%\new.bat" %2
+    goto :exit
+)
+
 :exit

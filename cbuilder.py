@@ -4,13 +4,13 @@ import json
 cwd = os.getcwd()
 headers = []
 sources = []
+libs = []
 global project_name
 
 def build():
     global project_name
 
     print('Building {}...\n'.format(project_name))
-    libs = []
     ##Get the directories in the current working directory
     dirs = os.listdir(cwd)
 
@@ -24,11 +24,11 @@ def build():
         sources[idx] = '../src/' + src
 
     if 'libs' in dirs:
-        libs = os.listdir(dirs[dirs.index('libs')])
+        libs_dir = os.listdir(dirs[dirs.index('libs')])
+        for lib in libs_dir:
+            if os.isfile(lib):
+                libs.append(lib)
 
-    # print(headers)
-    # print(sources)
-    # print(libs)
 
     if 'build' not in dirs:
         os.mkdir('build')
@@ -85,7 +85,7 @@ def get_other_includes():
     if name == "":
         print('"name" cannot be empty!')
         return 1
-        
+
     project_name = name
     # print('found "name" field in build.json: {}'.format(project_name))
 
@@ -97,11 +97,17 @@ def get_other_includes():
         print('"other_includes" key in build.json must be a list, not a {}'.format(type(other_includes)))
         return 1
     
-    headers.extend(other_includes)
     for include in other_includes:
         if not os.path.isdir(include):
             print('{} is not a directory! Please specify a directory to add to additional includes')
             return 1
+    headers.extend(other_includes)
+
+    other_libs = json_data["other_libs"]
+    if type(other_libs) is not list:
+        print('"other_libs" key in build.json must be a list, not a {}'.format(type(other_libs)))
+        return 1
+    libs.extend(other_libs)
 
 result = get_other_includes()
 if result:
