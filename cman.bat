@@ -1,7 +1,7 @@
 @echo off
 
 if "%1" == "build" (
-    call "%~dp0\build.bat"
+    call "%~dp0\build.bat" %*
     goto :exit
 )
 if "%1" == "init" (
@@ -15,7 +15,7 @@ if "%1" == "clean" (
 )
 
 if "%1" == "run" (
-    call "%~dp0\run.bat"
+    call "%~dp0\run.bat" %*
     goto :exit
 )
 

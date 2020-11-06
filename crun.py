@@ -1,6 +1,8 @@
 import os
 import subprocess
 import time
+import sys
+print(sys.argv)
 import cbuilder
 
 project_name = cbuilder.project_name

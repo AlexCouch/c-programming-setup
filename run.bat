@@ -1,3 +1,3 @@
 @echo off
 
-python3 %~dp0/crun.py
+python3 %~dp0/crun.py %*
