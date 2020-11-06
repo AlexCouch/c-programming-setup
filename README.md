@@ -86,3 +86,23 @@ cman run
 ```
 
 Run will first call build script followed by running the built executable. This will also tell you how long it took to run.
+
+## Project Kind
+Inside the build.json file is a key called `kind`
+```json
+{
+    "name": "test",
+    "kind": "app",
+    "other_includes": [],
+    "other_libs": []
+}
+```
+
+This tells the script how to build your project. There are three different kinds of projects:
+
+- App
+    - Apps are built into executables. This can rely on other libraries that you specify in "other_libs" or "other_includes".
+- Lib
+    - Libs are built into static libs. There is currently no way to build into a dll.
+- Container
+    - This is a project with other projects inside. The build too will skip over any includes/src dirs/files you may have at the root of the project. If you give the build command the name of a workspace declared in "workspaces" property in build.json, it will build that workspace. Same with run command.
