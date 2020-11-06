@@ -1,16 +1,29 @@
 # Cman
-This is just my new c programming setup, which is setup with VSCode. It's done in a way that allows me to efficiently and productively write C code by having command prompt on one side of the screen while having VSCode on the other and I can use keyboard shortcuts to switch back and forth between them and run a build script from within my current working directory.
+This is a "build system" I've made for myself for the purpose of efficiently writing C code.
+This will give you access to scripts that will allow you to easily create, manage, compile, and run C projects (or C++).
 
-Cloning this anywhere on your machine and adding its path to your PATH environment variable will give you access to run the build.bat script which runs the cbuilder.py file. It uses the cl command that comes built in with visual studio. My command prompt's shortcut uses the following command when starting up
+## Installation
+Clone this repo anywhere on your machine. Then cd into the cloned directory and run `setup`.
+```
+git clone https://github.com/alexcouch/cman
+cd cman
+setup
+```
+It should then say something about setting an environment variable following by refreshing the command prompt. This is setup.bat creating and setting CMAN_PATH environ variable to be used by init.bat and cinit.py for copying the default template .gitignore and build.json files into your current directory whenever you call init.
 
-`%windir%\system32\cmd.exe /k C:\cbuilder\start.bat`
+If you don't have cl command enabled on windows then there is a start.bat file which you can run, or you can make it be executed every time you start command prompt. I currently use the following 'target' value:
+```
+%windir%\system32\cmd.exe /k cd C:\ && %CMAN_PATH%\start.bat
+```
 
-This command will execute every time you open cmd using the shortcut and it will execute a script installed by visual studio when you download the vs express package, and it will setup your PATH var to give you access to windows command line compiler called 'cl'.
+This is ofc assuming you've already ran setup.bat.
 
-## Cman
+## Commands
+
+### Cman
 All the following commands can also be invoked under a superalias called 'cman'. The reason for this is to make it more clear that these commands are grouped together under the same umbrella.
 
-## Build
+### Build
 ```python
 #Either of these commands will work just fine
 build
@@ -26,6 +39,11 @@ Running build.bat will handle running the 'cl' command for you. If you don't hav
         "...",
         "...",
         "..."
+    ],
+    "other_libs": [
+        "...",
+        "...",
+        "..."
     ]
 }
 ```
@@ -33,7 +51,14 @@ This will be used to add additional includes outside of the project. This is goo
 
 This will also tell you how long it took to build.
 
-## Init
+### New
+```
+cman new some_dir_name
+new some_dir_name
+```
+This command will create a new directory using the first argument new gets. It will then cd into that directory, call the init script, then pop back into the original current working directory.
+
+### Init
 ```python
 #Either of these commands will work just fine
 init
@@ -44,7 +69,7 @@ Running init.bat will create a new project setup in your current working directo
 
 The `project` directory is a test directory you can use to play around with this tool.
 
-## Clean
+### Clean
 ```python
 #Either of these commands will work just fine
 clean
@@ -53,7 +78,7 @@ cman clean
 
 Clean will clean out the build directory. Not much else to say. Use it if you wish.
 
-## Run
+### Run
 ```python
 #Either of these commands will work just fine
 run
