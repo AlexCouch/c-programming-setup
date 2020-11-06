@@ -42,6 +42,7 @@ if not os.path.exists(build_json):
         try:
             data = {
                 "name": "",
+                "kind": "app",
                 "other_includes": [],
                 "other_libs": []
             }
