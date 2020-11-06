@@ -80,8 +80,13 @@ def get_other_includes():
     if "name" not in json_data:
         print('"name" is a required field.')
         return 1
-    
-    project_name = json_data["name"]
+
+    name = json_data["name"]
+    if name == "":
+        print('"name" cannot be empty!')
+        return 1
+        
+    project_name = name
     # print('found "name" field in build.json: {}'.format(project_name))
 
     if 'other_includes' not in json_data:

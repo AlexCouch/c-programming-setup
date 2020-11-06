@@ -1,6 +1,7 @@
 import os
 import sys
 import shutil
+import json
 
 if 'CMAN_PATH' not in os.environ:
     print('CMAN_PATH not set, please run "cman init" to generate it or report to author.')
@@ -34,3 +35,18 @@ if not os.path.exists(libs):
     print('Libs dir created!')
 
 shutil.copy(os.path.join(os.environ["CMAN_PATH"], '.gitignore'), '.gitignore')
+
+build_json = os.path.join(cwd, 'build.json')
+if not os.path.exists(build_json):
+    with open(build_json, 'x') as f:
+        try:
+            data = {
+                "name": "",
+                "other_includes": [],
+                "other_libs": []
+            }
+            json_data = json.dump(data, f, indent=4)
+        except json.JSONEncodError as e:
+            print('Failed to encode dict to json')
+            print(e)
+            exit(1)

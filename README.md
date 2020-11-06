@@ -21,6 +21,7 @@ Running build.bat will handle running the 'cl' command for you. If you don't hav
 
 ```
 {
+    "name": "some_name_of_executable",
     "other_includes": [
         "...",
         "...",
@@ -28,7 +29,7 @@ Running build.bat will handle running the 'cl' command for you. If you don't hav
     ]
 }
 ```
-This will be used to add additional includes outside of the project. This is good for if you have your own personal libraries you like to use, or if you like to keep a certain set of libraries at a certain location and you just add their paths to this file.
+This will be used to add additional includes outside of the project. This is good for if you have your own personal libraries you like to use, or if you like to keep a certain set of libraries at a certain location and you just add their paths to this file. "name" is used for naming the final executable.
 
 This will also tell you how long it took to build.
 
