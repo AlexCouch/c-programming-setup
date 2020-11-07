@@ -1,11 +1,14 @@
 import os
 import json
 import sys
+import datetime
 
 global cwd
 cwd = os.getcwd()
+global headers
 headers = []
 sources = []
+global libs
 libs = []
 global project_name
 
@@ -77,11 +80,16 @@ def dispatch_kind():
         
         os.chdir(ws_path)
         cwd = os.getcwd()
+
+        result = load_json_data()
+        if result:
+            return result
+
         result = get_other_includes()
         if result:
             return result
 
-        result = build()
+        result = dispatch_kind()
         if result:
             return result
 
@@ -95,11 +103,26 @@ def get_workspaces():
 
     workspaces = json_data["workspaces"]
 
-    
+
+def format_timedelta(time):
+    seconds = time.total_seconds()
+    ms = seconds * 1000
+    ms_str = str(seconds-int(seconds))[1:]
+    if ms < 1000:
+        return '{} ms'.format(int(ms))
+    elif seconds < 60:
+        return '{} s, {} ms'.format(int(seconds), )
+    elif seconds > 60:
+        return '{} m, {} s, {} ms'.format(seconds / 60, int(seconds), ms_str)
+    else:
+        return str(time)
+
 
 def build(lib=False):
     global project_name
     global cwd
+    global headers
+    global libs
 
     print('Building {}...\n'.format(project_name))
     ##Get the directories in the current working directory
@@ -130,62 +153,73 @@ def build(lib=False):
     os.chdir(cwd + '/build')
     cmd_str = ''
     if lib is True:
-        cmd_str = 'cl /c -Zi /I ../includes '
+        cmd_str = 'cl /c -Zi /Wall /I ../includes '
 
         for header in headers:
-            cmd_str += '/I ' + header + ' '
+            print('adding additonal includes path to lib command str {}'.format(header))
+            cmd_str += '/I' + header + ' '
 
         for src in sources:
             cmd_str += src + ' '
+
+        for lib in libs:
+            cmd_str += lib
     else:
-        cmd_str = 'cl -Zi /I ../includes '
+        cmd_str = 'cl -Zi /Wall /I ../includes '
 
         for header in headers:
-            cmd_str += '/I ' + header + ' '
+            cmd_str += '/I' + header + ' '
 
         for src in sources:
             cmd_str += src + ' '
+
+        for lib in libs:
+            cmd_str += lib + ' '
 
         cmd_str += '/Fe' + cwd + '/build/' + project_name
 
-    # print(cmd_str)
+    print(cmd_str)
     import subprocess
     import time
 
     ##Build object files before linking them into a lib
-    start_time = time.time() * 1000
+    start_time = datetime.datetime.now()
     try:
         out = subprocess.call(cmd_str)
     except subprocess.CalledProcessError as e:
         print(e.stdout.decode())
     
-    end_time = time.time() * 1000
-    diff = int(end_time - start_time)
+    end_time = datetime.datetime.now()
+    diff = end_time - start_time
+    time_str = format_timedelta(diff)
     
     print('')
-    print('Obj built in {} ms'.format(diff))
+    if lib is True:
+        print('Obj built in {}'.format(time_str))
 
-    ##Link object files into lib
-    link_str = 'lib /out:' + cwd + '/build/' + project_name + '.lib '
-    for file in os.listdir(cwd + '/build'):
-        filename, ext = os.path.splitext(file)
-        print('filename: {}, ext: {}'.format(filename, ext))
-        if ext == ".obj":
-            link_str += cwd + '/build/' + file + ' '
-    
-    # print('link_str', link_str)
-    start_time = time.time() * 1000
-    try:
-        out = subprocess.call(link_str)
-    except subprocess.CalledProcessError as e:
-        print(e.stdout.decode())
-    
-    end_time = time.time() * 1000
-    diff = int(end_time - start_time)
-    
-    print('')
-    print('Lib built in {} ms'.format(diff))
-
+        ##Link object files into lib
+        link_str = 'lib /out:' + cwd + '/build/' + project_name + '.lib '
+        for file in os.listdir(cwd + '/build'):
+            filename, ext = os.path.splitext(file)
+            print('filename: {}, ext: {}'.format(filename, ext))
+            if ext == ".obj":
+                link_str += cwd + '/build/' + file + ' '
+        
+        # print('link_str', link_str)
+        start_time = datetime.datetime.now()
+        try:
+            out = subprocess.call(link_str)
+        except subprocess.CalledProcessError as e:
+            print(e.stdout.decode())
+        
+        end_time = datetime.datetime.now()
+        diff = end_time - start_time
+        time_str = format_timedelta(diff)
+        
+        print('')
+        print('Lib built in {}'.format(time_str))
+    else:
+        print('Exe built in {}'.format(time_str))
     
 
     os.chdir(cwd)
@@ -194,6 +228,8 @@ def build(lib=False):
 def get_other_includes():
     global project_name
     global json_data
+    global headers
+    global libs
 
     if "name" not in json_data:
         print('"name" is a required field.')
@@ -215,7 +251,7 @@ def get_other_includes():
     if type(other_includes) is not list:
         print('"other_includes" key in build.json must be a list, not a {}'.format(type(other_includes)))
         return 1
-    
+    print('found other includes {}'.format(other_includes))
     for include in other_includes:
         if not os.path.isdir(include):
             print('{} is not a directory! Please specify a directory to add to additional includes')
@@ -240,4 +276,3 @@ if result:
 result = dispatch_kind()
 if result:
     exit(result)
-
