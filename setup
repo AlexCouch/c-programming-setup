@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ ! -z "${CMAN_PATH}" ]]; then
+if [[ -z "${CMAN_PATH}" ]]; then
     SCRIPT_PATH=`realpath $0`
     export CMAN_PATH=`dirname $SCRIPT_PATH`
 fi

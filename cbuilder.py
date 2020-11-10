@@ -7,6 +7,7 @@ global cwd
 cwd = os.getcwd()
 global headers
 headers = []
+global sources
 sources = []
 global libs
 libs = []
@@ -117,12 +118,110 @@ def format_timedelta(time):
     else:
         return str(time)
 
+def clean_object_files():
+    if sys.platform == "win32":
+        for file in os.listdir(cwd):
+            filename, ext = os.path.splitext(file)
+            if ext == ".obj":
+                os.removefile(file)
+    elif sys.platform == "linux" or sys.platform == "darwin":
+        for file in os.listdir(cwd):
+            filename, ext = os.path.splitext(file)
+            if ext == ".o":
+                os.removefile(file)
+
+def get_lib_string():
+    global project_name
+    link_str = ''
+    if sys.platform == "win32":
+        ##Link object files into lib
+        link_str = 'lib /out:' + cwd + '/build/' + project_name + '.lib '
+        for file in os.listdir(cwd + '/build'):
+            filename, ext = os.path.splitext(file)
+            if ext == ".obj":
+                link_str += cwd + '/build/' + file + ' '
+    elif sys.platform == "linux" or sys.platform == "darwin":
+        link_str = 'ar -rc '
+        for file in os.listdir(cwd + '/build'):
+            filename, ext = os.path.splitext(file)
+            if ext == ".o" and filename == project_name:
+                link_str += cwd + '/build/' + project_name + '.a ' + cwd + '/build/' + file + ' '
+    if link_str == '':
+        return None
+    return link_str
+
+def get_build_string(lib=False):
+    global project_name
+    global sources
+    global headers
+    global libs
+
+    cwd = os.getcwd()
+
+    build_str = ''
+    if sys.platform == "win32":
+        if lib is True:
+            cmd_str = 'cl /c -Zi /I ../includes '
+
+            for header in headers:
+                cmd_str += '/I' + header + ' '
+
+            for src in sources:
+                cmd_str += src + ' '
+
+            for lib in libs:
+                cmd_str += lib
+        else:
+            cmd_str = 'cl -Zi /I ../includes '
+
+            for header in headers:
+                cmd_str += '/I' + header + ' '
+
+            for src in sources:
+                cmd_str += src + ' '
+
+            for lib in libs:
+                cmd_str += lib + ' '
+
+            cmd_str += '/Fe' + cwd + project_name
+    elif sys.platform == "linux" or sys.platform == "darwin":
+        cmd_str = 'gcc '
+        if lib is True:
+            cmd_str += '-c '
+        else:
+            cmd_str += '-o ' + cwd + '/' + project_name
+
+        cmd_str += ' -I../includes '
+
+        for header in headers:
+            cmd_str += '-I' + header + ' '
+
+        for lib in libs:
+            libpath = os.path.dirname(lib)
+            cmd_str += '-L' + lib + ' '
+            cmd_str += '-l' + os.path.splitext(os.path.basename(lib))[0]
+
+        if lib is True:
+            cmd_str += '-o ' + project_name + '.o '
+        else:
+            cmd_str += '-o ' + project_name + ' '
+
+        for src in sources:
+            cmd_str += ' ' + src
+
+        
+    
+    if cmd_str == '':
+        return None
+    return cmd_str
+
 
 def build(lib=False):
     global project_name
     global cwd
     global headers
     global libs
+    global sources
 
     print('Building {}...\n'.format(project_name))
     ##Get the directories in the current working directory
@@ -133,13 +232,13 @@ def build(lib=False):
         print('Expected to find includes dir in current working directory but didnt!')
         return 1
 
-    sources = os.listdir('src')
-    if not sources:
+    src_dir = os.listdir('src')
+    if not src_dir:
         print('src cannot be empty while also being built!')
         return 1
 
-    for idx, src in enumerate(sources.copy()):
-        sources[idx] = '../src/' + src
+    for idx, src in enumerate(src_dir.copy()):
+        sources.append('../src/' + src)
 
     if 'libs' in dirs:
         libs_dir = os.listdir(dirs[dirs.index('libs')])
@@ -151,32 +250,11 @@ def build(lib=False):
     if 'build' not in dirs:
         os.mkdir('build')
     os.chdir(cwd + '/build')
-    cmd_str = ''
-    if lib is True:
-        cmd_str = 'cl /c -Zi /I ../includes '
 
-        for header in headers:
-            print('adding additonal includes path to lib command str {}'.format(header))
-            cmd_str += '/I' + header + ' '
-
-        for src in sources:
-            cmd_str += src + ' '
-
-        for lib in libs:
-            cmd_str += lib
-    else:
-        cmd_str = 'cl -Zi /I ../includes '
-
-        for header in headers:
-            cmd_str += '/I' + header + ' '
-
-        for src in sources:
-            cmd_str += src + ' '
-
-        for lib in libs:
-            cmd_str += lib + ' '
-
-        cmd_str += '/Fe' + cwd + '/build/' + project_name
+    cmd_str = get_build_string(lib)
+    if cmd_str is None:
+        print("Could not get a build string to execute. Error handling not implemented yet! Hang tight!")
+        return
 
     print(cmd_str)
     import subprocess
@@ -185,9 +263,12 @@ def build(lib=False):
     ##Build object files before linking them into a lib
     start_time = datetime.datetime.now()
     try:
-        out = subprocess.call(cmd_str)
+        out = subprocess.call(cmd_str + '', shell=True)
     except subprocess.CalledProcessError as e:
         print(e.stdout.decode())
+    except Exception as e:
+        print(e)
+        return
     
     end_time = datetime.datetime.now()
     diff = end_time - start_time
@@ -197,20 +278,21 @@ def build(lib=False):
     if lib is True:
         print('Obj built in {}'.format(time_str))
 
-        ##Link object files into lib
-        link_str = 'lib /out:' + cwd + '/build/' + project_name + '.lib '
-        for file in os.listdir(cwd + '/build'):
-            filename, ext = os.path.splitext(file)
-            print('filename: {}, ext: {}'.format(filename, ext))
-            if ext == ".obj":
-                link_str += cwd + '/build/' + file + ' '
+        link_str = get_lib_string()
+        if link_str is None:
+            print("Could not get a link string to execute. Error handling not implemented yet! Hang tight!")
+            return
         
         # print('link_str', link_str)
         start_time = datetime.datetime.now()
         try:
-            out = subprocess.call(link_str)
+            out = subprocess.call(link_str, shell=True)
         except subprocess.CalledProcessError as e:
             print(e.stdout.decode())
+            return
+        except FileNotFoundError as e:
+            print(e)
+            return
         
         end_time = datetime.datetime.now()
         diff = end_time - start_time
@@ -221,6 +303,7 @@ def build(lib=False):
     else:
         print('Exe built in {}'.format(time_str))
     
+    clean_object_files()
 
     os.chdir(cwd)
         

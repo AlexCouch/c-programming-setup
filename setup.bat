@@ -3,6 +3,7 @@ rem Check if %CMAN_PATH% is define, if not, set it to whatever the path of this 
 rem then call refreshenv
 if not defined CMAN_PATH (
     setx CMAN_PATH %~dp0
+    setx PATH "%PATH%;%CMAN_PATH%"
     call refreshenv.cmd
 )
 rem Let the user know they're good to go!
