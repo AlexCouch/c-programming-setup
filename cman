@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ "$1" = "run" ]; then
+	$CMAN_PATH/run $*
+fi
+
+if [ "$1" = "build" ]; then
+	$CMAN_PATH/build $*
+fi
+
+if [ "$1" = "new" ]; then
+	$CMAN_PATH/new $*
+fi
+
+if [ "$1" = "init" ]; then
+	$CMAN_PATH/init $*
+fi
+
+if [ "$1" = "clean" ]; then
+	$CMAN_PATH/clean $*
+fi

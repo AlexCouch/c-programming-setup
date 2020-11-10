@@ -153,7 +153,7 @@ def build(lib=False):
     os.chdir(cwd + '/build')
     cmd_str = ''
     if lib is True:
-        cmd_str = 'cl /c -Zi /Wall /I ../includes '
+        cmd_str = 'cl /c -Zi /I ../includes '
 
         for header in headers:
             print('adding additonal includes path to lib command str {}'.format(header))
@@ -165,7 +165,7 @@ def build(lib=False):
         for lib in libs:
             cmd_str += lib
     else:
-        cmd_str = 'cl -Zi /Wall /I ../includes '
+        cmd_str = 'cl -Zi /I ../includes '
 
         for header in headers:
             cmd_str += '/I' + header + ' '

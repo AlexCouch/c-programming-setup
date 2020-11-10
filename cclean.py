@@ -11,5 +11,7 @@ build = os.path.join(cwd, "build")
 os.chdir(build)
 files = os.listdir(build)
 for file in files:
+    if file == ".vs":
+        continue
     os.remove(file)
 os.chdir(cwd)

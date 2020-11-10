@@ -1,5 +1,5 @@
-@echo off
 
+echo %1
 @rem Check if %1 exists, if not, create the directory
 if not exist "%1" (
     mkdir %1
