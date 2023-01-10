@@ -1,7 +1,6 @@
 #!/bin/bash
 
 if [[ -z "${CMAN_PATH}" ]]; then
-    SCRIPT_PATH=`realpath $0`
-    export CMAN_PATH=`dirname $SCRIPT_PATH`
+    export CMAN_PATH="/usr/local/bin/cman"
 fi
 echo All good to go!
